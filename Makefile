@@ -11,7 +11,10 @@ build_limine:
 	@chmod +x $(SCRIPT)
 	$(SCRIPT) $(BUILD_DIR)
 
-kernel: build_limine
+flanterm:
+	bash scripts/flanterm.sh src
+
+kernel: build_limine flanterm
 	make -C src BUILD_DIR=$(BUILD_DIR) PROJECT_NAME=$(PROJECT_NAME)
 
 
