@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/include",
                 "${workspaceFolder}/src/include",
-                "${workspaceFolder}/src/include"
+                "${workspaceFolder}/src/include",
+                "${workspaceFolder}/src/flanterm"
             ],
             "defines": [],
             "macFrameworkPath": [
