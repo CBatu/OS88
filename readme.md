@@ -1,0 +1,1 @@
+şuan sadece mm için deniyorum ve hata veriyor. utilde atomic yok diyor. buna çözüm bul ve yapmanı istiyorum. oradan devam et.

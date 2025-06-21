@@ -14,7 +14,7 @@ fi
 # Ana build dizinine git
 cd "${BUILD_DIR}"
 
-TARGET_VERSION="8.0.5"
+TARGET_VERSION="9.2.3"
 
 fetchLimine() {
     rm -rf limine/

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 set -x  # show cmds
 set -e  # fail globally
@@ -18,25 +19,25 @@ TARGET_VERSION="1.1"
 
 # flanterm'ı almak veya güncellemek için fonksiyon
 fetchLimine() {
-    if [ -d "flanterm" ]; then  # Eğer flanterm dizini varsa
+    if [ -d "hdrs" ]; then  # Eğer flanterm dizini varsa
         # Versiyon kontrolü
-        cd flanterm
-        LOCAL_VERSION=$(cat .flanterm.version || echo "")
+        cd hdrs
+        LOCAL_VERSION=$(cat .hdrs.version || echo "")
         cd ..
 
         if [ "$LOCAL_VERSION" == "$TARGET_VERSION" ]; then
-            echo "flanterm zaten doğru versiyonla mevcut ($LOCAL_VERSION). Derleme yapılmayacak."
+            echo "hdrs zaten doğru versiyonla mevcut ($LOCAL_VERSION). Derleme yapılmayacak."
             return 0  # Versiyonlar eşitse, derleme yapma
         else
-            echo "flanterm versiyonu ($LOCAL_VERSION) güncel değil. Güncelleniyor..."
-            rm -rf flanterm/
+            echo "hdrs versiyonu ($LOCAL_VERSION) güncel değil. Güncelleniyor..."
+            rm -rf hdrs/
         fi
     fi
 
     # flanterm'ı klonla veya güncelle
-    git clone https://codeberg.org/mintsuki/flanterm.git --depth=1
-    cd flanterm/
-    echo "$TARGET_VERSION" > .flanterm.version  # Hedef versiyonu kaydet
+    git clone https://codeberg.org/osdev/freestnd-c-hdrs-0bsd.git --depth=1 hdrs
+    cd hdrs/
+    echo "$TARGET_VERSION" > .hdrs.version  # Hedef versiyonu kaydet
     cd ..
 }
 

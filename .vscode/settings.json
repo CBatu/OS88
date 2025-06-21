@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "limine.h": "c"
+        "util.h": "c",
+        "fb.h": "c",
+        "__locale": "c",
+        "ios": "c"
     }
 }
