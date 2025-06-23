@@ -23,7 +23,7 @@ CFLAGS := -m64 -g -c -ffreestanding -Wall -Werror -fcommon -fPIE -mno-80387 \
     -mno-sse2 \
     -mno-red-zone -fno-stack-protector \
     -fno-stack-check \
-    -fno-lto -I$(BUILD_DIR)/hdrs -nostdinc -I../include -Iflanterm -I$(BUILD_DIR)/limine 
+    -fno-lto -I$(BUILD_DIR)/hdrs -nostdinc -I../include -Iflanterm 
 
 # CPPFLAGS - C preprocessor flags
 CPPFLAGS := -I src -DLIMINE_API_REVISION=3 -MMD -MP
@@ -92,6 +92,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.asm
 	@mkdir -p $(dir $@)
+	@echo Compiling $<
 	@nasm $(NASMFLAGS) -o $@ $<
 
 # Bağlama işlemi (linkleme)

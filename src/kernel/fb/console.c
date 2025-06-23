@@ -1,20 +1,19 @@
+#include <fb/ansi.h>
 #include <fb/console.h>
 #include <fb/fb.h>
 #include <psf.h>
-#include <fb/ansi.h>
 #include <util.h>
-#include <locks/spinlock.h>
 
 // Kernel console implementation
 // Copyright (C) 2024 Panagiotis
 
-lock_t LOCK_CONSOLE;
 
 int bg_color[] = {0, 0, 0};
 int textcolor[] = {255, 255, 255};
 
 uint32_t width = 0;
 uint32_t height = 0;
+bool initialized = false;
 
 #define CHAR_HEIGHT (psf->height)
 #define CHAR_WIDTH (8)
@@ -33,7 +32,6 @@ void initiateConsole() {
   height = 0;
 
   psfLoadDefaults();
-  
 }
 
 bool scrollConsole(bool check) {
@@ -166,10 +164,11 @@ void drawCharacter(int charnum) {
   updateBull();
 }
 
+// Add spinlock later
 void printfch(char character) {
   // debugf("%c", character);
-  spinlock_acquire_or_wait(&LOCK_CONSOLE);
-  drawCharacter(character);
-  spinlock_drop(&LOCK_CONSOLE);
+  serial_putchar(character);
+  if (initialized)
+    drawCharacter(character);
 }
-
+void putchar_(char c) { printfch(c); }

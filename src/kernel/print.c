@@ -39,12 +39,10 @@
 
 // Define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H=1 ...) to include the
 // printf_config.h header file
-#if PRINTF_INCLUDE_CONFIG_H
 #include "printf_config.h"
-#endif
+
 
 #include <print.h>
-
 
 #ifdef __cplusplus
 #include <cstdint>

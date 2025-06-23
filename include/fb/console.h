@@ -9,6 +9,8 @@ extern uint32_t height;
 extern int bg_color[];
 extern int textcolor[];
 
+extern bool initialized;
+
 #define TTY_CHARACTER_WIDTH 8
 #define TTY_CHARACTER_HEIGHT 16
 
@@ -34,5 +36,5 @@ void updateBull();
 void clearScreen();
 
 void printfch(char character);
-
+void putchar_(char c);
 #endif

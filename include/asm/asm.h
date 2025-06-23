@@ -1,5 +1,6 @@
 #include "locks/spinlock.h"
 #include "types.h"
+#include <print.h>
 
 #ifndef ASM_H
 #define ASM_H
@@ -37,6 +38,7 @@ void     outportl(uint16_t portid, uint32_t value);
 uint64_t rdmsr(uint32_t msrid);
 uint64_t wrmsr(uint32_t msrid, uint64_t value);
 
+__attribute__((noreturn))
 void panic();
 
 

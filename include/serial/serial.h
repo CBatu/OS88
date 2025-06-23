@@ -2,6 +2,6 @@
 #define SERIAL_H
 
 void serial_init();
-void putchar_(char c);
+void serial_putchar(char c);
 
 #endif

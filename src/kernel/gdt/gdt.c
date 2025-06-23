@@ -1,8 +1,6 @@
 #include <gdt/gdt.h>
 #include <util.h>
-
-// GDT & TSS Entry configurator
-// Copyright (C) 2024 Panagiotis
+#include <print.h>
 
 static GDTEntries gdt;
 static GDTPtr     gdtr;
@@ -21,10 +19,16 @@ void gdt_load_tss(TSSPtr *tss) {
   gdt.tss.base_upper32 = (uint32_t)(addr >> 32);
   gdt.tss.reserved = 0;
 
+
+  printf("[GDT] Loading TSS at address: 0x\n%lx", addr);
+  printf("[GDT] Using selector 0x58 (GDT index 11)\n");
+
   asm volatile("ltr %0" : : "rm"((uint16_t)0x58) : "memory");
 }
 
 void gdt_reload() {
+  printf("[GDT] Loading GDTR: base=0x%lx limit=%u\n", gdtr.base, gdtr.limit);
+
   asm volatile("lgdt %0\n\t"
                "push $0x28\n\t"
                "lea 1f(%%rip), %%rax\n\t"
@@ -40,11 +44,21 @@ void gdt_reload() {
                :
                : "m"(gdtr)
                : "rax", "memory");
+
+  printf("[GDT] Segments reloaded (CS=0x28, DS/SS/etc=0x30)\n");
+}
+
+void print_gdt_entry(int i) {
+  GDTEntry e = gdt.descriptors[i];
+  uint32_t base = (e.base_high << 24) | (e.base_mid << 16) | e.base_low;
+  printf("GDT[%d] → base=0x%x, limit=0x%x, access=0x%02x, gran=0x%02x\n", i, base, e.limit, e.access, e.granularity);
 }
 
 void initiateGDT() {
+  printf("[GDT] Initializing GDT...\n");
+
   // Null descriptor. (0)
-  gdt.descriptors[0].limit = 0;
+   gdt.descriptors[0].limit = 0;
   gdt.descriptors[0].base_low = 0;
   gdt.descriptors[0].base_mid = 0;
   gdt.descriptors[0].access = 0;
@@ -132,8 +146,14 @@ void initiateGDT() {
   gdtr.limit = sizeof(GDTEntries) - 1;
   gdtr.base = (uint64_t)&gdt;
 
+  for (int i = 0; i <= 10; i++) {
+    print_gdt_entry(i);
+  }
+
   gdt_reload();
 
-  memset(&tss, 0, sizeof(TSSPtr));
+  memset(&tss, 0, sizeof(tss));
   gdt_load_tss(&tss);
+
+  printf("[GDT] GDT initialization complete.\n");
 }

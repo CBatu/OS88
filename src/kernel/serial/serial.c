@@ -26,8 +26,8 @@ int serial_is_transmit_empty() {
     return inb(COM1 + 5) & 0x20;
 }
 
-void putchar_(char c) {
+// For printf
+void serial_putchar(char c) {
     while (!serial_is_transmit_empty());
     outb(COM1, c);
 }
-
