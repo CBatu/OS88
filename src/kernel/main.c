@@ -9,6 +9,9 @@
 #include <bootloader.h>
 #include <fb/vga.h>
 #include <idt/idt.h>
+#include <mm/pmm.h>
+#include <mm/vmm.h>
+#include <mm/paging.h>
 
 
 static volatile LIMINE_BASE_REVISION(2);
@@ -24,14 +27,18 @@ void _start() {
     cli();
     initiateVGA();
     initiateConsole();
-    initialized = true;
     clearScreen();
+    initialized = true;
+
+    
+    initiatePMM();
+    initiateVMM();
+    
     initiateGDT();
     initiateIDT();
+    initiatePaging();
     printf("Hello, world!\n");
-    __asm__ volatile("int $0x03");
 
-    printf("Testing completed\n");
     
     // We're done, just hang...
     for(;;)

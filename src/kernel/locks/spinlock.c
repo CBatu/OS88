@@ -1,62 +1,70 @@
-/*
- * Copyright 2021 - 2023 NSG650
- * Copyright 2021 - 2023 Neptune
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+#include <locks/spinlock.h>
+#include <asm/asm.h>
+#include <print.h>
 
- #include <asm/asm.h>
- #include <print.h>
- #include <locks/spinlock.h>
- #include <stddef.h>
+// Various thread-safe locking mechanisms
+// Copyright (C) 2024 Panagiotis
 
- 
- static void *last_addr = NULL;
- 
- extern bool sched_runit;
- extern bool is_smp;
- 
- static void spinlock_spinning_for_too_long(lock_t *spin) {
-     printf("Error: Deadlocked at %p. Last owner %p\n", spin->last_owner, last_addr);
-     panic();
- }
- 
- bool spinlock_acquire(lock_t *spin) {
-     if (!spin)
-         return false;
-     bool ret = __sync_bool_compare_and_swap(&spin->lock, 0, 1);
-     if (ret)
-         spin->last_owner = __builtin_return_address(0);
-     return ret;
- }
- 
- void spinlock_acquire_or_wait(lock_t *spin) {
-     if (!spin)
-         return;
-     volatile size_t deadlock_counter = 0;
-     last_addr = __builtin_return_address(0);
-     for (;;) {
-         if (spinlock_acquire(spin))
-             break;
-         if (++deadlock_counter >= 100000000)
-             spinlock_spinning_for_too_long(spin);
-         pause();
-     }
-     spin->last_owner = __builtin_return_address(0);
- }
- 
- void spinlock_drop(lock_t *spin) {
-     if (!spin)
-         return;
-     __atomic_store_n(&spin->lock, 0, __ATOMIC_SEQ_CST);
- }
+void spinlockAcquire(Spinlock *lock) {
+  while (atomic_flag_test_and_set_explicit(lock, memory_order_acquire))
+    handControl();
+}
+
+void spinlockRelease(Spinlock *lock) {
+  atomic_flag_clear_explicit(lock, memory_order_release);
+}
+
+// Cnt spinlock is basically just a counter that increases for every read
+// operation. When something has to modify, it waits for it to become 0 and
+// makes it -1, not permitting any reads. Useful for linked lists..
+
+void spinlockCntReadAcquire(SpinlockCnt *lock) {
+  while (true) {
+    spinlockAcquire(&lock->LOCK);
+    if (lock->cnt > -1) {
+      lock->cnt++;
+      goto cleanup;
+    }
+    spinlockRelease(&lock->LOCK);
+    handControl();
+  }
+
+cleanup:
+  spinlockRelease(&lock->LOCK);
+}
+
+void spinlockCntReadRelease(SpinlockCnt *lock) {
+  spinlockAcquire(&lock->LOCK);
+  if (lock->cnt < 0) {
+    printf("[spinlock] Something very bad is going on...\n");
+    panic();
+  }
+
+  lock->cnt--;
+  spinlockRelease(&lock->LOCK);
+}
+
+void spinlockCntWriteAcquire(SpinlockCnt *lock) {
+  while (true) {
+    spinlockAcquire(&lock->LOCK);
+    if (lock->cnt == 0) {
+      lock->cnt = -1;
+      goto cleanup;
+    }
+    spinlockRelease(&lock->LOCK);
+    handControl();
+  }
+
+cleanup:
+  spinlockRelease(&lock->LOCK);
+}
+
+void spinlockCntWriteRelease(SpinlockCnt *lock) {
+  spinlockAcquire(&lock->LOCK);
+  if (lock->cnt != -1) {
+    printf("[spinlock] Something very bad is going on...\n");
+    panic();
+  }
+  lock->cnt = 0;
+  spinlockRelease(&lock->LOCK);
+}

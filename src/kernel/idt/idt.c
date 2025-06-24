@@ -105,6 +105,7 @@ void remap_pic() {
   disable_pic();
 }
 
+extern void isr255();
 void initiateIDT(){
     remap_pic();
 
@@ -117,10 +118,12 @@ void initiateIDT(){
         idtSetDescriptor(i, isr_stub_table[i], 0x8e);
     }
 
-    idtSetDescriptor(0x60, isr_stub_table[128], 0xEE);
+
+    idtSetDescriptor(0xff, isr255, 0x8e); 
+    idtSetDescriptor(0x80, isr_stub_table[128], 0xEE);
 
     __asm__ volatile ("lidt %0" :: "m"(idtr));
-    printf("IDT Initialized!\n");
+    printf("[IDT] IDT Initialized!\n");
     sti();
 }
 
@@ -128,7 +131,14 @@ void initiateIDT(){
 
 void interruptHandler(uint64_t rsp) {
   AsmPassedInterrupt *cpu = (AsmPassedInterrupt *)rsp;
-  if (cpu->interrupt >= 0 && cpu->interrupt < 32) {
+  if (cpu->interrupt >= 32 && cpu->interrupt <= 47){
+    if (cpu->interrupt >= 40) {
+      outportb(0xA0, 0x20);
+    }
+    outportb(0x20, 0x20);
+    //apicWrite(0xB0, 0);
+  }
+  else if (cpu->interrupt >= 0 && cpu->interrupt < 32) {
     if (cpu->interrupt == 14) {
       uint64_t err_pos;
       asm volatile("movq %%cr2, %0" : "=r"(err_pos));
@@ -139,6 +149,7 @@ void interruptHandler(uint64_t rsp) {
     printf("Panic! Interrupt %s occured\n", exceptions[cpu->interrupt]);
     panic();
   }
+  
 }
 
 void syscallHandler() {

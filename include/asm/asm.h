@@ -41,6 +41,19 @@ uint64_t wrmsr(uint32_t msrid, uint64_t value);
 __attribute__((noreturn))
 void panic();
 
+bool checkInterrupts();
+
+void _assert(bool expression, char *file, int line);
+#define NO_ASSERT 0
+#if NO_ASSERT
+// #define assert(...)
+#define assert(expression) _assert(expression, 0, 0)
+#else
+#define assert(expression) _assert(expression, __FILE__, __LINE__)
+#endif
+
+void handControl();
+
 
 #define FLAT_PTR(PTR) (*((uintptr_t(*)[])(PTR)))
 

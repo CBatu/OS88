@@ -16,7 +16,7 @@
  */
 
  #include <asm/asm.h>
- #include <print.h>
+
 
  void halt(void) {
      asm("hlt");
@@ -96,3 +96,21 @@
     while (true)
       halt();
   }
+
+void _assert(bool expression, char *file, int line) {
+  if (!expression) {
+    printf("[assert] Assertation failed! file{%s:%d}\n", file, line);
+    panic();
+  }
+}
+
+  bool checkInterrupts() {
+  uint16_t flags;
+  asm volatile("pushf; pop %0" : "=g"(flags));
+  return flags & (1 << 9);
+}
+
+void handControl(){
+  assert(!checkInterrupts());
+
+}

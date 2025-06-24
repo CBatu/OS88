@@ -77,8 +77,14 @@ ASM_OBJ_FILES := $(ASM_FILES:$(SRC_DIR)/%.asm=$(OBJ_DIR)/%.o)
 # Varsayılan hedef
 all: $(OUTPUT)
 
+$(OBJ_DIR)/kernel/mm/malloc.o: kernel/mm/malloc.c
+	mkdir -p $(dir $@)
+	@echo Compiling $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DHAVE_MMAP=0 -DLACKS_TIME_H=1 -DLACKS_SYS_PARAM_H=1 -LACKS_STRING_H=0 -Dmalloc_getpagesize=4096 -DNO_MALLOC_STATS=1 -DMORECORE_CONTIGUOUS=0 -DUSE_LOCKS=2 "-DMALLOC_FAILURE_ACTION=abort()" -c $< -o $@
+
 $(OBJ_DIR)/kernel/print.o: kernel/print.c
 	mkdir -p $(dir $@)
+	@echo Compiling $<
 	$(CC) $(CFLAGS) $(CPPFLAGS) -DPRINTF_INCLUDE_CONFIG_H=1 -c $< -o $@
 
 

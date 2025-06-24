@@ -3,6 +3,7 @@
 #include <fb/fb.h>
 #include <psf.h>
 #include <util.h>
+#include <locks/spinlock.h>
 
 // Kernel console implementation
 // Copyright (C) 2024 Panagiotis
@@ -14,6 +15,8 @@ int textcolor[] = {255, 255, 255};
 uint32_t width = 0;
 uint32_t height = 0;
 bool initialized = false;
+
+Spinlock LOCK_CONSOLE = ATOMIC_FLAG_INIT;
 
 #define CHAR_HEIGHT (psf->height)
 #define CHAR_WIDTH (8)
@@ -30,7 +33,6 @@ uint32_t rgbaToHex(int r, int g, int b, int a) {
 void initiateConsole() {
   width = 0;
   height = 0;
-
   psfLoadDefaults();
 }
 
@@ -167,8 +169,10 @@ void drawCharacter(int charnum) {
 // Add spinlock later
 void printfch(char character) {
   // debugf("%c", character);
+   spinlockAcquire(&LOCK_CONSOLE);
   serial_putchar(character);
   if (initialized)
     drawCharacter(character);
+  spinlockRelease(&LOCK_CONSOLE);
 }
 void putchar_(char c) { printfch(c); }
