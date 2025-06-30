@@ -68,4 +68,6 @@ void sti(void);
 void pause(void);
 void nop(void);
 
+int debugf(const char *format, ...);
+
 #endif

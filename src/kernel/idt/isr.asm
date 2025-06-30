@@ -69,7 +69,6 @@ syscall_entry:
   pop rsp ; reset rsp
 
   o64 sysret
-  iretq
 
 isr_common:
     push rax
@@ -101,7 +100,6 @@ isr_common:
 		mov rdi, rsp
     extern interruptHandler
     call interruptHandler
-    iretq
 
 %macro isr_err_stub 1
 global isr_stub_%1

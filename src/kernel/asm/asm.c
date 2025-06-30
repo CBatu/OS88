@@ -16,6 +16,11 @@
  */
 
  #include <asm/asm.h>
+ #include <psf.h>
+#include <serial/serial.h>
+#include <mm/paging.h>
+
+
 
 
  void halt(void) {
@@ -113,4 +118,26 @@ void _assert(bool expression, char *file, int line) {
 void handControl(){
   assert(!checkInterrupts());
 
+}
+
+Spinlock LOCK_DEBUGF = {0};
+
+void debug(char c, void *arg) {
+  // outportb(0xE9, c);
+  if (psf)
+     printf("%c", c);
+  serial_putchar(c);
+}
+
+int debugf(const char *format, ...) {
+  bool ints = checkInterrupts();
+  if (ints)
+    spinlockAcquire(&LOCK_DEBUGF);
+  va_list va;
+  va_start(va, format);
+  int ret = vfctprintf(debug, 0, format, va);
+  va_end(va);
+  if (ints)
+    spinlockRelease(&LOCK_DEBUGF);
+  return ret;
 }

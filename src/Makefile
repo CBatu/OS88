@@ -40,9 +40,6 @@ override CPPFLAGS := \
     -MMD \
     -MP
 
-# Ekstra flag'ler (flanterm özel)
-flanterm/backends/fb.c: override CPPFLAGS += \
-    -DFLANTERM_FB_DISABLE_BUMP_ALLOC
 
 # Linker flag'leri
 LDFLAGS := -m elf_x86_64 \
@@ -80,7 +77,7 @@ all: $(OUTPUT)
 $(OBJ_DIR)/kernel/mm/malloc.o: kernel/mm/malloc.c
 	mkdir -p $(dir $@)
 	@echo Compiling $<
-	$(CC) $(CFLAGS) $(CPPFLAGS) -DHAVE_MMAP=0 -DLACKS_TIME_H=1 -DLACKS_SYS_PARAM_H=1 -LACKS_STRING_H=0 -Dmalloc_getpagesize=4096 -DNO_MALLOC_STATS=1 -DMORECORE_CONTIGUOUS=0 -DUSE_LOCKS=2 "-DMALLOC_FAILURE_ACTION=abort()" -c $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DHAVE_MMAP=0 -DLACKS_TIME_H=1 -DLACKS_SYS_PARAM_H=1 -DLACKS_STDLIB_H=0 -DLACKS_UNISTD_H=0 -DLACKS_SCHED_H=0 -DLACKS_STRING_H=0 -Dmalloc_getpagesize=4096 -DNO_MALLOC_STATS=1 -DMORECORE_CONTIGUOUS=0 -DUSE_LOCKS=2 "-DMALLOC_FAILURE_ACTION=abort()" -c $< -o $@
 
 $(OBJ_DIR)/kernel/print.o: kernel/print.c
 	mkdir -p $(dir $@)

@@ -15,4 +15,6 @@ int     ACQUIRE_LOCK(Spinlock *lock);
 int     RELEASE_LOCK(Spinlock *lock);
 int     INITIAL_LOCK(Spinlock *lock);
 
+void abort();
+
 #endif

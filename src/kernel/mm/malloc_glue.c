@@ -1,7 +1,7 @@
 #include <mm/malloc_glue.h>
 #include <asm/asm.h>
 #include <util.h>
-#include <vmm.h>
+#include <mm/vmm.h>
 
 #define DEBUG_DLMALLOC_GLUE 0
 

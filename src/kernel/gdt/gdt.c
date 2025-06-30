@@ -51,7 +51,7 @@ void gdt_reload() {
 void print_gdt_entry(int i) {
   GDTEntry e = gdt.descriptors[i];
   uint32_t base = (e.base_high << 24) | (e.base_mid << 16) | e.base_low;
-  printf("GDT[%d] → base=0x%x, limit=0x%x, access=0x%02x, gran=0x%02x\n", i, base, e.limit, e.access, e.granularity);
+  printf("GDT[%d] -> base=0x%x, limit=0x%x, access=0x%02x, gran=0x%02x\n", i, base, e.limit, e.access, e.granularity);
 }
 
 void initiateGDT() {
